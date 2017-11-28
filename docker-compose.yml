@@ -1,0 +1,14 @@
+version: '2'
+services:
+  hlds:
+    image: ${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}
+    environment:
+      - GAME
+      - MAXPLAYERS
+      - START_MAP
+      - SERVER_NAME
+      - STEAM_ADMINS
+    ports:
+    - ${PORT}:27015/udp
+    labels:
+      io.rancher.container.pull_image: always

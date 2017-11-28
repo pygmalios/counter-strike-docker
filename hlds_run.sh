@@ -26,9 +26,10 @@ if [ -z "${RESTART_ON_FAIL}" ]; then
     OPTIONS+=('-norestart')
 fi
 
-if [ -n "${ADMIN_STEAM}" ]; then
+for ADMIN_STEAM in ${STEAM_ADMINS}
+do
     echo "\"STEAM_${ADMIN_STEAM}\" \"\"  \"abcdefghijklmnopqrstu\" \"ce\"" >> "/opt/hlds/cstrike/addons/amxmodx/configs/users.ini"
-fi
+done
 
 set > "${CONFIG_FILE}"
 
