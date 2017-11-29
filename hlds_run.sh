@@ -20,7 +20,12 @@ MAXPLAYERS="${MAXPLAYERS:-32}"
 START_MAP="${START_MAP:-de_dust2}"
 SERVER_NAME="${SERVER_NAME:-Counter-Strike 1.6 Server}"
 
-OPTIONS=( "-game" "${GAME}" "+maxplayers" "${MAXPLAYERS}" "+map" "${START_MAP}" "+hostname" "\"${SERVER_NAME}\"")
+if [ "${HLTV}" == "true" ]; then
+    EXECUTABLE="/opt/hlds/hltv"
+    OPTIONS=( "+connect" "${HLTV_SERVER}" "-port" "${HLTV_PORT}")
+else
+    OPTIONS=( "-game" "${GAME}" "+maxplayers" "${MAXPLAYERS}" "+map" "${START_MAP}" "+hostname" "\"${SERVER_NAME}\"")
+fi
 
 if [ -z "${RESTART_ON_FAIL}" ]; then
     OPTIONS+=('-norestart')

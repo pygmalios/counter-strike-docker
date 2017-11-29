@@ -7,7 +7,7 @@ ARG steam_password=
 ARG metamod_version=1.20
 ARG amxmod_version=1.8.2
 
-RUN apt update && apt install -y lib32gcc1 curl \
+RUN apt update && apt install -y lib32gcc1 curl lib32stdc++6\
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -38,8 +38,10 @@ RUN curl -sqL "http://www.amxmodx.org/release/amxmodx-$amxmod_version-cstrike-li
 RUN apt remove -y curl
 
 # Add files
-ADD cstrike /opt/hlds/cstrike
+ADD hlds /opt/hlds
 ADD hlds_run.sh /bin/hlds_run.sh
+
+ENV LD_LIBRARY_PATH=/opt/hlds
 
 WORKDIR /opt/hlds
 

@@ -9,6 +9,18 @@ services:
       - SERVER_NAME
       - STEAM_ADMINS
     ports:
-    - ${PORT}:27015/udp
+      - ${PORT}:27015/udp
+    labels:
+      io.rancher.container.pull_image: always
+  hltv:
+    image: ${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}
+    environment:
+      - HLTV=true
+      - HLTV_SERVER
+      - HLTV_PORT
+    links:
+      - hlds:hlds
+    ports:
+      - ${HLTV_PORT}:${HLTV_PORT}/udp
     labels:
       io.rancher.container.pull_image: always
