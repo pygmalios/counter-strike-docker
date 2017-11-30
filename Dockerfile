@@ -2,40 +2,42 @@ FROM debian:jessie
 
 LABEL maintainer "Vladislav Mozgovoy <vladzikus@gmail.com>"
 
-ARG steam_user=anonymous
-ARG steam_password=
-ARG metamod_version=1.20
-ARG amxmod_version=1.8.2
+ARG steam_user="anonymous"
+ARG steam_password=""
+ARG metamod_version="1.21.1-am"
+ARG amxmod_version="1.8.2"
 
-RUN apt update && apt install -y lib32gcc1 curl lib32stdc++6\
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt update && apt install -y lib32gcc1 curl lib32stdc++6 unzip
 
 # Install SteamCMD
-RUN mkdir -p /opt/steam && cd /opt/steam && \
-    curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
+RUN mkdir -p /opt/steam && cd /opt/steam \
+    && curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
 
 # Install HLDS
-RUN mkdir -p /opt/hlds
-# Workaround for "app_update 90" bug, see https://forums.alliedmods.net/showthread.php?p=2518786
-RUN /opt/steam/steamcmd.sh +login $steam_user $steam_password +force_install_dir /opt/hlds +app_update 90 validate +quit
-RUN /opt/steam/steamcmd.sh +login $steam_user $steam_password +force_install_dir /opt/hlds +app_update 70 validate +quit || :
-RUN /opt/steam/steamcmd.sh +login $steam_user $steam_password +force_install_dir /opt/hlds +app_update 10 validate +quit || :
-RUN /opt/steam/steamcmd.sh +login $steam_user $steam_password +force_install_dir /opt/hlds +app_update 90 validate +quit
-RUN mkdir -p ~/.steam && ln -s /opt/hlds ~/.steam/sdk32
-RUN ln -s /opt/steam/ /opt/hlds/steamcmd
-ADD files/steam_appid.txt /opt/hlds/steam_appid.txt
+RUN mkdir -p /opt/hlds \
+    # Workaround for "app_update 90" bug, see https://forums.alliedmods.net/showthread.php?p=2518786
+    && /opt/steam/steamcmd.sh +login $steam_user $steam_password +force_install_dir /opt/hlds +app_update 90 validate +quit \
+    && /opt/steam/steamcmd.sh +login $steam_user $steam_password +force_install_dir /opt/hlds +app_update 70 validate +quit || : \
+    && /opt/steam/steamcmd.sh +login $steam_user $steam_password +force_install_dir /opt/hlds +app_update 10 validate +quit || : \
+    && /opt/steam/steamcmd.sh +login $steam_user $steam_password +force_install_dir /opt/hlds +app_update 90 validate +quit \
+    && mkdir -p ~/.steam \
+    && ln -s /opt/hlds ~/.steam/sdk32 \
+    && ln -s /opt/steam/ /opt/hlds/steamcmd
 
 # Install metamod
-RUN mkdir -p /opt/hlds/cstrike/addons/metamod/dlls
-RUN curl -sqL "http://prdownloads.sourceforge.net/metamod/metamod-$metamod_version-linux.tar.gz?download" | tar -C /opt/hlds/cstrike/addons/metamod/dlls -zxvf -
+RUN mkdir -p /opt/hlds/cstrike/addons/metamod/dlls \
+    && curl -O http://www.amxmodx.org/release/metamod-$metamod_version.zip \
+    && unzip -d /opt/hlds/cstrike metamod-$metamod_version.zip \
+    && rm -f metamod-$metamod_version.zip
 
 # Install AMX mod X
-RUN curl -sqL "http://www.amxmodx.org/release/amxmodx-$amxmod_version-base-linux.tar.gz" | tar -C /opt/hlds/cstrike/ -zxvf -
-RUN curl -sqL "http://www.amxmodx.org/release/amxmodx-$amxmod_version-cstrike-linux.tar.gz" | tar -C /opt/hlds/cstrike/ -zxvf -
+RUN curl -sqL "http://www.amxmodx.org/release/amxmodx-$amxmod_version-base-linux.tar.gz" | tar -C /opt/hlds/cstrike/ -zxvf - \
+    && curl -sqL "http://www.amxmodx.org/release/amxmodx-$amxmod_version-cstrike-linux.tar.gz" | tar -C /opt/hlds/cstrike/ -zxvf -
 
 # Cleanup
-RUN apt remove -y curl
+RUN apt remove -y curl unzip\
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add files
 ADD hlds /opt/hlds
