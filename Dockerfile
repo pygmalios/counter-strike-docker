@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:stretch-slim
 
 LABEL maintainer "Vladislav Mozgovoy <vladzikus@gmail.com>"
 
@@ -7,7 +7,13 @@ ARG steam_password=""
 ARG metamod_version="1.21.1-am"
 ARG amxmod_version="1.8.2"
 
-RUN apt update && apt install -y lib32gcc1 curl lib32stdc++6 unzip
+RUN apt update && apt install -y \
+    lib32gcc1 \
+    curl \
+    lib32stdc++6 \
+    unzip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install SteamCMD
 RUN mkdir -p /opt/steam && cd /opt/steam \
@@ -35,9 +41,7 @@ RUN curl -sqL "http://www.amxmodx.org/release/amxmodx-$amxmod_version-base-linux
     && curl -sqL "http://www.amxmodx.org/release/amxmodx-$amxmod_version-cstrike-linux.tar.gz" | tar -C /opt/hlds/cstrike/ -zxvf -
 
 # Cleanup
-RUN apt remove -y curl unzip\
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt remove -y curl unzip
 
 # Add files
 ADD hlds /opt/hlds
